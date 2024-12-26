@@ -8,9 +8,12 @@ const RhythmGame = () => {
 
   useEffect(() => {
     if (gameOver) return;
+
     const interval = setInterval(() => {
       const randomPad = pads[Math.floor(Math.random() * pads.length)];
       setActivePad(randomPad);
+
+      // Sørg for, at pad kun er aktiv i 500ms
       setTimeout(() => setActivePad(null), 500);
     }, 1000);
 
@@ -19,9 +22,12 @@ const RhythmGame = () => {
 
   const handlePadClick = (color) => {
     if (gameOver) return;
+
     if (color === activePad) {
+      // Hvis det er korrekt, øges scoren, og spillet fortsætter
       setScore((prev) => prev + 1);
     } else {
+      // Hvis det er forkert, stopper spillet
       setGameOver(true);
     }
   };
