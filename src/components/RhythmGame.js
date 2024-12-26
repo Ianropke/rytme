@@ -13,14 +13,14 @@ const RhythmGame = () => {
   const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads
   const initialBPM = 100;
   const maxBPM = 119;
-  const gameDuration = 55; // Total game duration in seconds
+  const gameDuration = 60; // Total game duration in seconds
 
-  // Initialize Howler.js with beatcheck.mp3
+  // Initialize Howler.js with beatcheck.mp3 and double the volume
   const music = new Howl({
     src: ["/beatcheck.mp3"], // Ensure the file is in public/
     autoplay: false,
     loop: true,
-    volume: 0.5,
+    volume: 1.0, // Double the volume (default is 0.5)
   });
 
   useEffect(() => {
