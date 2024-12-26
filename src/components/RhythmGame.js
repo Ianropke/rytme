@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "../App.css"; // Sørger for at importere App.css korrekt fra src-mappen
+import "../App.css"; // Correct path to App.css for styling
 
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
-  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Farver til pads
+  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Funky pad colors
 
   useEffect(() => {
     if (gameOver) return;
@@ -14,8 +14,8 @@ const RhythmGame = () => {
       const randomPad = Math.floor(Math.random() * pads.length);
       setActivePad(randomPad);
 
-      setTimeout(() => setActivePad(null), 600); // Aktiv knap varer 600ms
-    }, 1000); // Nyt pad hvert sekund
+      setTimeout(() => setActivePad(null), 600); // Keep pad active for 600ms
+    }, 1000); // New pad activates every second
 
     return () => clearInterval(interval);
   }, [gameOver]);
