@@ -8,10 +8,12 @@ const RhythmGame = () => {
   const [tolerantPad, setTolerantPad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
   const [lives, setLives] = useState(3);
+  const [timeElapsed, setTimeElapsed] = useState(0); // Track elapsed time
 
-  const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads: red and green
+  const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads
   const initialBPM = 100;
   const maxBPM = 119;
+  const gameDuration = 55; // Total game duration in seconds
 
   // Initialize Howler.js with beatcheck.mp3
   const music = new Howl({
@@ -24,25 +26,43 @@ const RhythmGame = () => {
   useEffect(() => {
     if (gameOver) return;
 
-    // Start the music
-    music.play();
+    // Start the game after 2 seconds
+    const startGameTimeout = setTimeout(() => {
+      music.play();
 
-    // Dynamic BPM based on score
-    const dynamicBPM = Math.min(maxBPM, initialBPM + score * 2);
-    const beatInterval = (60 / dynamicBPM) * 1000;
+      const dynamicBPM = Math.min(maxBPM, initialBPM + score * 2);
+      const beatInterval = (60 / dynamicBPM) * 1000;
 
-    const interval = setInterval(() => {
-      const randomPad = Math.floor(Math.random() * pads.length);
-      setActivePad(randomPad);
-      setTolerantPad(randomPad);
+      const interval = setInterval(() => {
+        const randomPad = Math.floor(Math.random() * pads.length);
+        setActivePad(randomPad);
+        setTolerantPad(randomPad);
 
-      setTimeout(() => setActivePad(null), 800); // Active for 800ms
-      setTimeout(() => setTolerantPad(null), 1500); // Tolerance for 1.5s
-    }, beatInterval);
+        setTimeout(() => setActivePad(null), 800); // Active for 800ms
+        setTimeout(() => setTolerantPad(null), 1500); // Tolerance for 1.5s
+      }, beatInterval);
+
+      // Stop the game after the defined duration
+      const stopGameTimeout = setTimeout(() => {
+        setGameOver(true);
+        music.stop();
+      }, gameDuration * 1000);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(stopGameTimeout);
+      };
+    }, 2000); // 2-second delay
+
+    // Track elapsed time
+    const timerInterval = setInterval(() => {
+      setTimeElapsed((prev) => prev + 1);
+    }, 1000);
 
     return () => {
-      clearInterval(interval);
-      music.stop();
+      clearTimeout(startGameTimeout);
+      clearInterval(timerInterval);
+      music.stop(); // Stop music if component unmounts or game ends
     };
   }, [score, gameOver]);
 
@@ -63,8 +83,9 @@ const RhythmGame = () => {
     setActivePad(null);
     setTolerantPad(null);
     setLives(3);
-    music.seek(0);
-    music.play();
+    setTimeElapsed(0); // Reset elapsed time
+    music.seek(0); // Restart the music
+    music.play(); // Replay the music
   };
 
   return (
@@ -72,15 +93,21 @@ const RhythmGame = () => {
       <h1>Jamiroquai Rhythm Game</h1>
       <h2>Score: {score}</h2>
       <h2>Lives: {lives}</h2>
+      <h2>Time: {Math.min(timeElapsed, gameDuration)} / {gameDuration} seconds</h2>
       {gameOver ? (
         <>
-          <h3>Game Over!</h3>
+          {timeElapsed >= gameDuration ? (
+            <h3>Game Completed!</h3>
+          ) : (
+            <h3>Game Over!</h3>
+          )}
           <p>
-            You lost the groove! Don your virtual space hat and try again to
-            catch the beat!
+            {timeElapsed >= gameDuration
+              ? "You mastered the funky beats of Jamiroquai! 🕺"
+              : "You lost the groove! Don your virtual space hat and try again!"}
           </p>
           <button className="reset-button" onClick={resetGame}>
-            Funk It Again!
+            {timeElapsed >= gameDuration ? "Play Again!" : "Funk It Again!"}
           </button>
         </>
       ) : (
