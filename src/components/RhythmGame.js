@@ -5,16 +5,17 @@ import "../App.css";
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
-  const [tolerantPad, setTolerantPad] = useState(null); // Tolerance period
+  const [tolerantPad, setTolerantPad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
+  const [lives, setLives] = useState(3);
 
-  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Pad colors
-  const BPM = 119; // Updated BPM for beatcheck.mp3
-  const beatInterval = (60 / BPM) * 1000; // Interval between beats in milliseconds (~504ms)
+  const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads: red and green
+  const initialBPM = 100;
+  const maxBPM = 119;
 
   // Initialize Howler.js with beatcheck.mp3
   const music = new Howl({
-    src: ["/beatcheck.mp3"], // Ensure the file is in the public/ folder
+    src: ["/beatcheck.mp3"], // Ensure the file is in public/
     autoplay: false,
     loop: true,
     volume: 0.5,
@@ -26,34 +27,33 @@ const RhythmGame = () => {
     // Start the music
     music.play();
 
-    // Start the pad cycling
+    // Dynamic BPM based on score
+    const dynamicBPM = Math.min(maxBPM, initialBPM + score * 2);
+    const beatInterval = (60 / dynamicBPM) * 1000;
+
     const interval = setInterval(() => {
       const randomPad = Math.floor(Math.random() * pads.length);
-      setActivePad(randomPad); // Highlight the active pad
-      setTolerantPad(randomPad); // Allow a tolerance window for clicks
+      setActivePad(randomPad);
+      setTolerantPad(randomPad);
 
-      // Clear the active pad after 500ms
-      setTimeout(() => setActivePad(null), 500);
-
-      // Clear the tolerant pad after 1 second
-      setTimeout(() => setTolerantPad(null), 1000);
-    }, beatInterval); // Sync with the updated BPM (~504ms)
+      setTimeout(() => setActivePad(null), 800); // Active for 800ms
+      setTimeout(() => setTolerantPad(null), 1500); // Tolerance for 1.5s
+    }, beatInterval);
 
     return () => {
       clearInterval(interval);
-      music.stop(); // Stop the music when unmounted or game ends
+      music.stop();
     };
-  }, [gameOver]);
+  }, [score, gameOver]);
 
   const handlePadClick = (index) => {
     if (gameOver) return;
 
     if (index === activePad || index === tolerantPad) {
-      // Player clicked correctly within the active/tolerance window
       setScore((prev) => prev + 1);
     } else {
-      // Player clicked incorrectly
-      setGameOver(true);
+      setLives((prev) => prev - 1);
+      if (lives - 1 <= 0) setGameOver(true);
     }
   };
 
@@ -62,40 +62,52 @@ const RhythmGame = () => {
     setGameOver(false);
     setActivePad(null);
     setTolerantPad(null);
-    music.seek(0); // Restart the music
-    music.play(); // Replay the music
+    setLives(3);
+    music.seek(0);
+    music.play();
   };
 
   return (
     <div className="rhythm-game">
-      <h1>Rhythm Game</h1>
+      <h1>Jamiroquai Rhythm Game</h1>
       <h2>Score: {score}</h2>
+      <h2>Lives: {lives}</h2>
       {gameOver ? (
         <>
           <h3>Game Over!</h3>
+          <p>
+            You lost the groove! Don your virtual space hat and try again to
+            catch the beat!
+          </p>
           <button className="reset-button" onClick={resetGame}>
-            Try Again
+            Funk It Again!
           </button>
         </>
       ) : (
-        <div className="pad-container">
-          {pads.map((color, index) => (
-            <div
-              key={index}
-              className={`pad ${
-                activePad === index || tolerantPad === index ? "active" : ""
-              }`}
-              style={{
-                backgroundColor: color,
-                boxShadow:
-                  activePad === index || tolerantPad === index
-                    ? `0 0 30px ${color}`
-                    : "0 0 10px rgba(0, 0, 0, 0.5)",
-              }}
-              onClick={() => handlePadClick(index)}
-            ></div>
-          ))}
-        </div>
+        <>
+          <p>
+            Feel the funky vibes of Jamiroquai! Hit the red or green buttons in
+            sync with the beat and keep grooving!
+          </p>
+          <div className="pad-container">
+            {pads.map((color, index) => (
+              <div
+                key={index}
+                className={`pad ${
+                  activePad === index || tolerantPad === index ? "active" : ""
+                }`}
+                style={{
+                  backgroundColor: color,
+                  boxShadow:
+                    activePad === index || tolerantPad === index
+                      ? `0 0 30px ${color}`
+                      : "0 0 10px rgba(0, 0, 0, 0.5)",
+                }}
+                onClick={() => handlePadClick(index)}
+              ></div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
