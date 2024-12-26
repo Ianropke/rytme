@@ -4,6 +4,7 @@ const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
+  const [tolerantPad, setTolerantPad] = useState(null); // Tilføjer en toleranceperiode
   const pads = ["red", "blue", "green", "yellow"];
 
   useEffect(() => {
@@ -11,29 +12,34 @@ const RhythmGame = () => {
 
     const interval = setInterval(() => {
       const randomPad = pads[Math.floor(Math.random() * pads.length)];
-      console.log("New active pad:", randomPad); // Debug-log for at vise hvilken knap, der lyser
+      console.log("New active pad:", randomPad);
       setActivePad(randomPad);
+      setTolerantPad(randomPad); // Tillader toleranceperiode
 
-      // Sørg for, at knappen kun er aktiv i 500ms
+      // Aktiv knap varer 500ms
       setTimeout(() => setActivePad(null), 500);
-    }, 1000);
+
+      // Tolerance varer yderligere 500ms
+      setTimeout(() => setTolerantPad(null), 1000);
+    }, 1500); // Gør spillet lidt langsommere
 
     return () => clearInterval(interval);
   }, [gameOver]);
 
   const handlePadClick = (color) => {
-    console.log("Clicked pad:", color); // Debug-log for at vise, hvilken knap brugeren klikkede på
-    console.log("Active pad:", activePad); // Debug-log for at vise, hvad den aktive knap er
+    console.log("Clicked pad:", color);
+    console.log("Active pad:", activePad);
+    console.log("Tolerant pad:", tolerantPad);
 
     if (gameOver) return;
 
-    if (color === activePad) {
-      // Hvis det er korrekt, øges scoren, og spillet fortsætter
+    if (color === activePad || color === tolerantPad) {
+      // Accepter klik, hvis det sker i toleranceperioden
       setScore((prev) => prev + 1);
-      console.log("Correct pad clicked! Score:", score + 1); // Debug-log for korrekt klik
+      console.log("Correct pad clicked! Score:", score + 1);
     } else {
-      // Hvis det er forkert, stopper spillet
-      console.log("Wrong pad clicked! Game Over."); // Debug-log for forkert klik
+      // Fejl fører til Game Over
+      console.log("Wrong pad clicked! Game Over.");
       setGameOver(true);
     }
   };
@@ -42,7 +48,8 @@ const RhythmGame = () => {
     setScore(0);
     setGameOver(false);
     setActivePad(null);
-    console.log("Game reset."); // Debug-log for reset
+    setTolerantPad(null); // Nulstil tolerance
+    console.log("Game reset.");
   };
 
   return (
@@ -63,7 +70,12 @@ const RhythmGame = () => {
               onClick={() => handlePadClick(color)}
               style={{
                 backgroundColor: color,
-                border: activePad === color ? "5px solid white" : "none",
+                border:
+                  activePad === color
+                    ? "5px solid white"
+                    : tolerantPad === color
+                    ? "5px dashed white"
+                    : "none",
                 padding: "20px",
                 width: "70px",
                 height: "70px",
