@@ -10,17 +10,17 @@ const RhythmGame = () => {
   const [lives, setLives] = useState(3);
   const [timeElapsed, setTimeElapsed] = useState(0); // Track elapsed time
 
-  const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads
+  const pads = ["#FF4C4C", "#4CFF4C"]; // Only two pads (red and green)
   const initialBPM = 100;
   const maxBPM = 119;
   const gameDuration = 60; // Total game duration in seconds
 
-  // Initialize Howler.js with beatcheck.mp3 and quadruple the original volume
+  // Initialize Howler.js with beatcheck.mp3
   const music = new Howl({
     src: ["/beatcheck.mp3"], // Ensure the file is in public/
     autoplay: false,
     loop: true,
-    volume: 2.0, // Quadruple the default volume (maximum supported by Howler.js)
+    volume: 2.0, // Maximum supported by Howler.js
   });
 
   useEffect(() => {
@@ -119,9 +119,14 @@ const RhythmGame = () => {
             {pads.map((color, index) => (
               <div
                 key={index}
-                className={`pad ${activePad === index || tolerantPad === index ? "active" : ""} ${
-                  color === "#FF4C4C" ? "red" : "green"
-                }`}
+                className={`pad ${activePad === index || tolerantPad === index ? "active" : ""}`}
+                style={{
+                  backgroundColor: color,
+                  boxShadow:
+                    activePad === index || tolerantPad === index
+                      ? `0 0 30px ${color}`
+                      : "0 0 10px rgba(0, 0, 0, 0.5)",
+                }}
                 onClick={() => handlePadClick(index)}
               ></div>
             ))}
