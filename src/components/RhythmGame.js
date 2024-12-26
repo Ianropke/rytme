@@ -15,18 +15,18 @@ const RhythmGame = () => {
   const maxBPM = 119;
   const gameDuration = 60; // Total game duration in seconds
 
-  // Initialize Howler.js with beatcheck.mp3 and double the volume
+  // Initialize Howler.js with beatcheck.mp3 and quadruple the original volume
   const music = new Howl({
     src: ["/beatcheck.mp3"], // Ensure the file is in public/
     autoplay: false,
     loop: true,
-    volume: 1.0, // Double the volume (default is 0.5)
+    volume: 2.0, // Quadruple the default volume (maximum supported by Howler.js)
   });
 
   useEffect(() => {
     if (gameOver) return;
 
-    // Start the game after 2 seconds
+    // Start the game after 5 seconds
     const startGameTimeout = setTimeout(() => {
       music.play();
 
@@ -52,7 +52,7 @@ const RhythmGame = () => {
         clearInterval(interval);
         clearTimeout(stopGameTimeout);
       };
-    }, 2000); // 2-second delay
+    }, 5000); // 5-second delay
 
     // Track elapsed time
     const timerInterval = setInterval(() => {
@@ -113,23 +113,15 @@ const RhythmGame = () => {
       ) : (
         <>
           <p>
-            Feel the funky vibes of Jamiroquai! Hit the red or green buttons in
-            sync with the beat and keep grooving!
+            Get ready to groove! The funky Jamiroquai beats start in 5 seconds!
           </p>
           <div className="pad-container">
             {pads.map((color, index) => (
               <div
                 key={index}
-                className={`pad ${
-                  activePad === index || tolerantPad === index ? "active" : ""
+                className={`pad ${activePad === index || tolerantPad === index ? "active" : ""} ${
+                  color === "#FF4C4C" ? "red" : "green"
                 }`}
-                style={{
-                  backgroundColor: color,
-                  boxShadow:
-                    activePad === index || tolerantPad === index
-                      ? `0 0 30px ${color}`
-                      : "0 0 10px rgba(0, 0, 0, 0.5)",
-                }}
                 onClick={() => handlePadClick(index)}
               ></div>
             ))}
