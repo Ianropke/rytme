@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
+import "../App.css"; // Sørger for at importere App.css korrekt fra src-mappen
 
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
-  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Funky farver!
+  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Farver til pads
 
   useEffect(() => {
     if (gameOver) return;
@@ -14,8 +14,8 @@ const RhythmGame = () => {
       const randomPad = Math.floor(Math.random() * pads.length);
       setActivePad(randomPad);
 
-      setTimeout(() => setActivePad(null), 600); // Hold pad aktiv i 600ms
-    }, 1000);
+      setTimeout(() => setActivePad(null), 600); // Aktiv knap varer 600ms
+    }, 1000); // Nyt pad hvert sekund
 
     return () => clearInterval(interval);
   }, [gameOver]);
@@ -38,7 +38,7 @@ const RhythmGame = () => {
 
   return (
     <div className="rhythm-game">
-      <h1>Jamiroquai Rhythm Game</h1>
+      <h1>Rhythm Game</h1>
       <h2>Score: {score}</h2>
       {gameOver ? (
         <>
