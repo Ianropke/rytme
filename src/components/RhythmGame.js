@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Howl } from "howler";
-import "../App.css"; // Styling til spillet
+import "../App.css";
 
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
-  const [tolerantPad, setTolerantPad] = useState(null); // Tilføjet toleranceperiode
+  const [tolerantPad, setTolerantPad] = useState(null); // Tolerance period
   const [gameOver, setGameOver] = useState(false);
 
-  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Farver til pads
-  const BPM = 120; // Beats per minute for beatcheck.mp3
-  const beatInterval = (60 / BPM) * 1000; // Interval mellem beats i millisekunder
+  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Pad colors
+  const BPM = 119; // Updated BPM for beatcheck.mp3
+  const beatInterval = (60 / BPM) * 1000; // Interval between beats in milliseconds (~504ms)
 
-  // Initialiser Howler.js med beatcheck.mp3
+  // Initialize Howler.js with beatcheck.mp3
   const music = new Howl({
-    src: ["/beatcheck.mp3"], // Sørg for, at beatcheck.mp3 ligger i public-mappen
+    src: ["/beatcheck.mp3"], // Ensure the file is in the public/ folder
     autoplay: false,
     loop: true,
     volume: 0.5,
@@ -23,23 +23,25 @@ const RhythmGame = () => {
   useEffect(() => {
     if (gameOver) return;
 
-    // Start musikken
+    // Start the music
     music.play();
 
-    // Synkroniser knapper med beats
+    // Start the pad cycling
     const interval = setInterval(() => {
       const randomPad = Math.floor(Math.random() * pads.length);
-      setActivePad(randomPad);
-      setTolerantPad(randomPad); // Tilføj toleranceperiode
+      setActivePad(randomPad); // Highlight the active pad
+      setTolerantPad(randomPad); // Allow a tolerance window for clicks
 
-      // Nulstil activePad efter 500ms, men hold tolerantPad aktiv i 1 sekund
+      // Clear the active pad after 500ms
       setTimeout(() => setActivePad(null), 500);
+
+      // Clear the tolerant pad after 1 second
       setTimeout(() => setTolerantPad(null), 1000);
-    }, beatInterval); // Synkroniseret med musikkens BPM
+    }, beatInterval); // Sync with the updated BPM (~504ms)
 
     return () => {
       clearInterval(interval);
-      music.stop(); // Stop musikken, når komponenten unmountes
+      music.stop(); // Stop the music when unmounted or game ends
     };
   }, [gameOver]);
 
@@ -47,10 +49,10 @@ const RhythmGame = () => {
     if (gameOver) return;
 
     if (index === activePad || index === tolerantPad) {
-      // Giv point, hvis spilleren klikker inden for toleranceperioden
+      // Player clicked correctly within the active/tolerance window
       setScore((prev) => prev + 1);
     } else {
-      // Spillet slutter ved forkert klik
+      // Player clicked incorrectly
       setGameOver(true);
     }
   };
@@ -60,8 +62,8 @@ const RhythmGame = () => {
     setGameOver(false);
     setActivePad(null);
     setTolerantPad(null);
-    music.seek(0); // Genstart musikken
-    music.play();
+    music.seek(0); // Restart the music
+    music.play(); // Replay the music
   };
 
   return (
