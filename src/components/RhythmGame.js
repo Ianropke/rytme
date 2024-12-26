@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Howl } from "howler";
-import "../App.css"; // Sørg for korrekt styling
+import "../App.css"; // Styling til spillet
 
-const RhythmGameWithMusic = () => {
+const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
   const [tolerantPad, setTolerantPad] = useState(null); // Tilføjet toleranceperiode
   const [gameOver, setGameOver] = useState(false);
 
-  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Pad-farver
-  const BPM = 120; // Beats per minute for din sang
-  const beatInterval = (60 / BPM) * 1000; // Interval mellem beats i ms
+  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Farver til pads
+  const BPM = 120; // Beats per minute for beatcheck.mp3
+  const beatInterval = (60 / BPM) * 1000; // Interval mellem beats i millisekunder
 
-  // Initialize music with Howler.js
+  // Initialiser Howler.js med beatcheck.mp3
   const music = new Howl({
-    src: ["your-music-file.mp3"], // Erstat med stien til din MP3-fil
-    autoplay: true,
+    src: ["/beatcheck.mp3"], // Sørg for, at beatcheck.mp3 ligger i public-mappen
+    autoplay: false,
     loop: true,
     volume: 0.5,
   });
@@ -39,7 +39,7 @@ const RhythmGameWithMusic = () => {
 
     return () => {
       clearInterval(interval);
-      music.stop(); // Stop musikken, når spillet stopper
+      music.stop(); // Stop musikken, når komponenten unmountes
     };
   }, [gameOver]);
 
@@ -47,10 +47,11 @@ const RhythmGameWithMusic = () => {
     if (gameOver) return;
 
     if (index === activePad || index === tolerantPad) {
-      // Giv point, hvis spilleren rammer inden for toleranceperioden
+      // Giv point, hvis spilleren klikker inden for toleranceperioden
       setScore((prev) => prev + 1);
     } else {
-      setGameOver(true); // Stop spillet ved forkert klik
+      // Spillet slutter ved forkert klik
+      setGameOver(true);
     }
   };
 
@@ -59,7 +60,8 @@ const RhythmGameWithMusic = () => {
     setGameOver(false);
     setActivePad(null);
     setTolerantPad(null);
-    music.seek(0); // Genstart musikken fra begyndelsen
+    music.seek(0); // Genstart musikken
+    music.play();
   };
 
   return (
@@ -97,4 +99,4 @@ const RhythmGameWithMusic = () => {
   );
 };
 
-export default RhythmGameWithMusic;
+export default RhythmGame;
