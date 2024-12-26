@@ -11,9 +11,10 @@ const RhythmGame = () => {
 
     const interval = setInterval(() => {
       const randomPad = pads[Math.floor(Math.random() * pads.length)];
+      console.log("New active pad:", randomPad); // Debug-log for at vise hvilken knap, der lyser
       setActivePad(randomPad);
 
-      // Sørg for, at pad kun er aktiv i 500ms
+      // Sørg for, at knappen kun er aktiv i 500ms
       setTimeout(() => setActivePad(null), 500);
     }, 1000);
 
@@ -21,13 +22,18 @@ const RhythmGame = () => {
   }, [gameOver]);
 
   const handlePadClick = (color) => {
+    console.log("Clicked pad:", color); // Debug-log for at vise, hvilken knap brugeren klikkede på
+    console.log("Active pad:", activePad); // Debug-log for at vise, hvad den aktive knap er
+
     if (gameOver) return;
 
     if (color === activePad) {
       // Hvis det er korrekt, øges scoren, og spillet fortsætter
       setScore((prev) => prev + 1);
+      console.log("Correct pad clicked! Score:", score + 1); // Debug-log for korrekt klik
     } else {
       // Hvis det er forkert, stopper spillet
+      console.log("Wrong pad clicked! Game Over."); // Debug-log for forkert klik
       setGameOver(true);
     }
   };
@@ -36,6 +42,7 @@ const RhythmGame = () => {
     setScore(0);
     setGameOver(false);
     setActivePad(null);
+    console.log("Game reset."); // Debug-log for reset
   };
 
   return (
