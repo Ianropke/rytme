@@ -1,45 +1,31 @@
 import React, { useState, useEffect } from "react";
+import "./App.css";
 
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
   const [activePad, setActivePad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
-  const [tolerantPad, setTolerantPad] = useState(null); // Tilføjer en toleranceperiode
-  const pads = ["red", "blue", "green", "yellow"];
+  const pads = ["#FF4C4C", "#4CFF4C", "#4C4CFF", "#FFC04C"]; // Funky farver!
 
   useEffect(() => {
     if (gameOver) return;
 
     const interval = setInterval(() => {
-      const randomPad = pads[Math.floor(Math.random() * pads.length)];
-      console.log("New active pad:", randomPad);
+      const randomPad = Math.floor(Math.random() * pads.length);
       setActivePad(randomPad);
-      setTolerantPad(randomPad); // Tillader toleranceperiode
 
-      // Aktiv knap varer 500ms
-      setTimeout(() => setActivePad(null), 500);
-
-      // Tolerance varer yderligere 500ms
-      setTimeout(() => setTolerantPad(null), 1000);
-    }, 1500); // Gør spillet lidt langsommere
+      setTimeout(() => setActivePad(null), 600); // Hold pad aktiv i 600ms
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [gameOver]);
 
-  const handlePadClick = (color) => {
-    console.log("Clicked pad:", color);
-    console.log("Active pad:", activePad);
-    console.log("Tolerant pad:", tolerantPad);
-
+  const handlePadClick = (index) => {
     if (gameOver) return;
 
-    if (color === activePad || color === tolerantPad) {
-      // Accepter klik, hvis det sker i toleranceperioden
+    if (index === activePad) {
       setScore((prev) => prev + 1);
-      console.log("Correct pad clicked! Score:", score + 1);
     } else {
-      // Fejl fører til Game Over
-      console.log("Wrong pad clicked! Game Over.");
       setGameOver(true);
     }
   };
@@ -48,42 +34,34 @@ const RhythmGame = () => {
     setScore(0);
     setGameOver(false);
     setActivePad(null);
-    setTolerantPad(null); // Nulstil tolerance
-    console.log("Game reset.");
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Rhythm Game</h1>
+    <div className="rhythm-game">
+      <h1>Jamiroquai Rhythm Game</h1>
       <h2>Score: {score}</h2>
-      {gameOver && (
+      {gameOver ? (
         <>
           <h3>Game Over!</h3>
-          <button onClick={resetGame}>Try Again</button>
+          <button className="reset-button" onClick={resetGame}>
+            Try Again
+          </button>
         </>
-      )}
-      {!gameOver && (
-        <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
-          {pads.map((color) => (
-            <button
-              key={color}
-              onClick={() => handlePadClick(color)}
+      ) : (
+        <div className="pad-container">
+          {pads.map((color, index) => (
+            <div
+              key={index}
+              className={`pad ${activePad === index ? "active" : ""}`}
               style={{
                 backgroundColor: color,
-                border:
-                  activePad === color
-                    ? "5px solid white"
-                    : tolerantPad === color
-                    ? "5px dashed white"
-                    : "none",
-                padding: "20px",
-                width: "70px",
-                height: "70px",
-                cursor: "pointer",
+                boxShadow:
+                  activePad === index
+                    ? `0 0 30px ${color}`
+                    : "0 0 10px rgba(0, 0, 0, 0.5)",
               }}
-            >
-              {color}
-            </button>
+              onClick={() => handlePadClick(index)}
+            ></div>
           ))}
         </div>
       )}
