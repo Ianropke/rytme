@@ -131,6 +131,7 @@ const RhythmGame = () => {
             Get ready to groove! The funky Jamiroquai beats start in 5 seconds!
           </p>
           <div className="track-container">
+            <div className="hit-line"></div> {/* Add the hit line */}
             {notes.map((note) => (
               <div
                 key={note.id}
