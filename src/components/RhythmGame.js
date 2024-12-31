@@ -4,6 +4,7 @@ import "../App.css";
 
 const RhythmGame = () => {
   const [score, setScore] = useState(0);
+  const [notes, setNotes] = useState([]); // Tracks falling notes
   const [activePad, setActivePad] = useState(null);
   const [tolerantPad, setTolerantPad] = useState(null);
   const [gameOver, setGameOver] = useState(false);
@@ -14,6 +15,7 @@ const RhythmGame = () => {
   const initialBPM = 100;
   const maxBPM = 119;
   const gameDuration = 60; // Total game duration in seconds
+  const noteTravelTime = 2000; // Time it takes for a note to "fall" (2 seconds)
 
   // Initialize Howler.js with beatcheck.mp3
   const music = new Howl({
@@ -33,13 +35,25 @@ const RhythmGame = () => {
       const dynamicBPM = Math.min(maxBPM, initialBPM + score * 2);
       const beatInterval = (60 / dynamicBPM) * 1000;
 
-      const interval = setInterval(() => {
+      // Generate notes
+      const noteInterval = setInterval(() => {
         const randomPad = Math.floor(Math.random() * pads.length);
-        setActivePad(randomPad);
-        setTolerantPad(randomPad);
 
-        setTimeout(() => setActivePad(null), 800); // Active for 800ms
-        setTimeout(() => setTolerantPad(null), 1500); // Tolerance for 1.5s
+        // Add a new note to the track
+        setNotes((prevNotes) => [
+          ...prevNotes,
+          { id: Date.now(), color: pads[randomPad], padIndex: randomPad },
+        ]);
+
+        // Set the pad to active when the note "hits" the bottom
+        setTimeout(() => {
+          setActivePad(randomPad);
+          setTolerantPad(randomPad);
+
+          // Clear active state after a short duration
+          setTimeout(() => setActivePad(null), 800); // Active for 800ms
+          setTimeout(() => setTolerantPad(null), 1500); // Tolerance for 1.5s
+        }, noteTravelTime);
       }, beatInterval);
 
       // Stop the game after the defined duration
@@ -49,7 +63,7 @@ const RhythmGame = () => {
       }, gameDuration * 1000);
 
       return () => {
-        clearInterval(interval);
+        clearInterval(noteInterval);
         clearTimeout(stopGameTimeout);
       };
     }, 5000); // 5-second delay
@@ -84,6 +98,7 @@ const RhythmGame = () => {
     setTolerantPad(null);
     setLives(3);
     setTimeElapsed(0); // Reset elapsed time
+    setNotes([]); // Clear falling notes
     music.seek(0); // Restart the music
     music.play(); // Replay the music
   };
@@ -115,15 +130,27 @@ const RhythmGame = () => {
           <p>
             Get ready to groove! The funky Jamiroquai beats start in 5 seconds!
           </p>
+          <div className="track-container">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                className="note"
+                style={{
+                  backgroundColor: note.color,
+                  animation: `fall ${noteTravelTime}ms linear`,
+                }}
+              ></div>
+            ))}
+          </div>
           <div className="pad-container">
             {pads.map((color, index) => (
               <div
                 key={index}
-                className={`pad ${activePad === index || tolerantPad === index ? "active" : ""}`}
+                className={`pad ${activePad === index ? "active" : ""}`}
                 style={{
                   backgroundColor: color,
                   boxShadow:
-                    activePad === index || tolerantPad === index
+                    activePad === index
                       ? `0 0 30px ${color}`
                       : "0 0 10px rgba(0, 0, 0, 0.5)",
                 }}
